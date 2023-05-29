@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Form, ListGroup, Image } from 'react-bootstrap';
 
 const UserPfpComponent = ({user}) => {
@@ -63,22 +63,26 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
 
         let appendedUserTotextareaContent = textareaContent.substring(0, index) + '@' + username + ' ';
         textareaRef.current.value = appendedUserTotextareaContent;
+
         setUsernameMentions([...usernameMentions, username]);
         textareaRef.current.focus();
         setShowResults(false);
         setFocusedValue(null);
     };
 
+    const handleUsernameMention = useCallback(() => {
+        usernameMentions.forEach((username, i) => {
+            if (textareaContent.indexOf(`@${username}`) === -1) {
+                let temp = [...usernameMentions.slice(0,i), ...usernameMentions.slice(i+1)];
+                setUsernameMentions(temp);
+            }
+        })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [textareaContent]);
+
     useEffect(() => {
-        if (usernameMentions.length > 0) {
-            usernameMentions.forEach((username, i) => {
-                if (textareaContent.indexOf(`@${username}`) === -1) {
-                    let temp = [...usernameMentions.slice(0,i), ...usernameMentions.slice(i+1)];
-                    setUsernameMentions(temp);
-                }
-            })
-        }
-    }, [textareaContent, setUsernameMentions, usernameMentions]);
+        handleUsernameMention();
+    }, [handleUsernameMention]);
 
     return (
         <div style={{position:"relative"}}>
@@ -88,9 +92,9 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
                     showResults && focusedValue !== null && results.length > 0 &&
                     <ListGroup style={{position:"absolute",zIndex:999,width:"300px",height:"200px",overflowY:"auto",bottom:-225,right:0}}>
                         {
-                            results.map(result =>
-                                <ListGroup.Item action onClick={() => handleCompleteMention(result.item.name)}>
-                                    <UserListGroup user={result.item} />
+                            results.map((result) =>
+                                <ListGroup.Item key={result.item.name} action onClick={() => handleCompleteMention(result.item.name)}>
+                                    <UserListGroup user={result.item}/>
                                 </ListGroup.Item>
                             )
                         }

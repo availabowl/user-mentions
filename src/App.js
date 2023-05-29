@@ -67,7 +67,7 @@ const App = () => {
             <Container style={{marginTop:'48px'}}>
                 <Row>
                     <Col>
-                        <h4 style={{marginBottom:'24px'}}>Availabowl Mentioning Component, v1.3 -- sandbox</h4>
+                        <h4 style={{marginBottom:'24px'}}>Availabowl Mentioning Component, v1.4 -- sandbox</h4>
                         <UserMentionsInput 
                         searchForUser={searchForUser}
                         usernameMentions={usernameMentions}
@@ -82,7 +82,7 @@ const App = () => {
                         </Alert>
                         <p style={{marginTop:'24px'}}><b>Users in dummy database</b></p>
                         {
-                            userBank.map(user => <p style={{fontFamily:"monospace"}}>{JSON.stringify(user)}</p>)
+                            userBank.map((user, i) => <p style={{fontFamily:"monospace"}} key={i}>{JSON.stringify(user)}</p>)
                         }
                     </Col>
                 </Row>

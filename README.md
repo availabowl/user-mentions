@@ -1,4 +1,4 @@
-# Mentioning Component, v0.1.3
+# Mentioning Component, v0.1.4
 This open-sourced component from Availabowl is a textarea that supports username mentioning with the @ symbol. Although it does not exactly share the same UI as Availabowl does, it retains most of the functionality that it inherits when utilized on Availabowl. 
 
 ## Prerequisites
