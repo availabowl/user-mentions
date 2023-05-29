@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Form, ListGroup, Image } from 'react-bootstrap';
 
 const UserPfpComponent = ({user}) => {
@@ -40,7 +40,6 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
                 let prelimSearchResults = searchForUser(focusedUserValue);
 
                 if (prelimSearchResults.length > 0 && !usernameMentions.includes(prelimSearchResults[0].item.name)) {
-
                     // Prevent any duplicates from being inputted.
                     usernameMentions.forEach(username => {
                         prelimSearchResults = prelimSearchResults.filter(result => result.item.name !== username);
@@ -69,6 +68,17 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
         setShowResults(false);
         setFocusedValue(null);
     };
+
+    useEffect(() => {
+        if (usernameMentions.length > 0) {
+            usernameMentions.forEach((username, i) => {
+                if (textareaContent.indexOf(`@${username}`) === -1) {
+                    let temp = [...usernameMentions.slice(0,i), ...usernameMentions.slice(i+1)];
+                    setUsernameMentions(temp);
+                }
+            })
+        }
+    }, [textareaContent, setUsernameMentions, usernameMentions]);
 
     return (
         <div style={{position:"relative"}}>

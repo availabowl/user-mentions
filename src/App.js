@@ -86,22 +86,6 @@ const App = () => {
                         }
                     </Col>
                 </Row>
-                <Row>
-                    <Col>
-                        <b>Disclaimers</b>
-                        <Alert variant="warning" style={{marginTop:'24px'}}>
-                            <ul>
-                                <li>
-                                    This does not detect when username mentions in the textarea are deleted or modified after being saved to the username mentions list.
-                                    Availabowl bypasses this by re-running the regex and verifying that these users indeed do exist on the backend to only notify usernames mentioned.
-                                </li>
-                                <li>
-                                    Currently, I am working on this mentioned issue to be handled in the next release so that the backend does not have to handle it.
-                                </li>
-                            </ul>
-                        </Alert>
-                    </Col>
-                </Row>
             </Container>
         </>
 	)
