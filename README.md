@@ -42,11 +42,13 @@ Therefore, when you decide to implement it with another search algorithm that re
 | :-------- | :------- | :------------------------- |
 | `usernameMentions` | `Array` | **Required**. useState array that manages the saved users. |
 
-
-
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
 | `setUsernameMentions`      | `Function` | **Required**. useState setter that manages the saved users. |
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `searchForUser`      | `Function` | **Required**. Provided function that predicates searching and returning results. |
 
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
