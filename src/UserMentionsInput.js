@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Form, ListGroup, Image } from 'react-bootstrap';
 
 const UserPfpComponent = ({user}) => {
@@ -28,7 +28,16 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
 
     const [textareaContent, setTextareaContent] = useState('');
 
-    const handleOnChange = (e) => {
+    const handleUsernameMention = useCallback((textContent) => {
+        usernameMentions.forEach((username, i) => { // Go through each saved username in the state array
+            if (textContent.indexOf(`@${username}`) === -1) { // If @username is no longer in the textarea's content, remove it and update state array
+                let temp = [...usernameMentions.slice(0,i), ...usernameMentions.slice(i+1)];
+                setUsernameMentions(temp);
+            }
+        })
+    }, [usernameMentions, setUsernameMentions]);
+
+    const handleOnChange = async (e) => {
         setTextareaContent(e.target.value);
         let usernameDetections = e.target.value.match(pattern) || [];
 
@@ -57,7 +66,17 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
         if (e.target.value.substring(e.target.value.length-1) === ' ' || e.target.value.length === 0) {
             setShowResults(false);
         }
-    } 
+
+        return new Promise((resolve, _) => {
+            resolve(e.target.value);
+        })
+    }
+
+    const handleChainedOnchange = (e) => {
+        handleOnChange(e).then(textContent => {
+            handleUsernameMention(textContent);
+        })
+    }
 
     const handleCompleteMention = (username) => {
         let usernameDetections = textareaContent.match(pattern) || [];
@@ -73,24 +92,10 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
         setFocusedValue(null);
     };
 
-    const handleUsernameMention = useCallback(() => {
-        usernameMentions.forEach((username, i) => {
-            if (textareaContent.indexOf(`@${username}`) === -1) {
-                let temp = [...usernameMentions.slice(0,i), ...usernameMentions.slice(i+1)];
-                setUsernameMentions(temp);
-            }
-        })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [textareaContent]);
-
-    useEffect(() => {
-        handleUsernameMention();
-    }, [handleUsernameMention]);
-
     return (
         <div style={{position:"relative"}}>
             <Form>
-                <Form.Control as="textarea" rows={5} style={{resize:'none'}} onChange={handleOnChange} ref={textareaRef} placeholder="Enter some text here." />
+                <Form.Control as="textarea" rows={5} style={{resize:'none'}} onChange={handleChainedOnchange} ref={textareaRef} placeholder="Enter some text here."/>
                 {
                     showResults && focusedValue !== null && results.length > 0 &&
                     <ListGroup style={{position:"absolute",zIndex:999,width:"300px",height:"200px",overflowY:"auto",bottom:-225,right:0}}>
