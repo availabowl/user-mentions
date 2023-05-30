@@ -1,4 +1,4 @@
-# Mentioning Component, v0.1.4
+# Mentioning Component, v0.1.5
 This open-sourced component from Availabowl is a textarea that supports username mentioning with the @ symbol. Although it does not exactly share the same UI as Availabowl does, it retains most of the functionality that it inherits when utilized on Availabowl. 
 
 ## Prerequisites
@@ -16,8 +16,8 @@ This open-sourced component from Availabowl is a textarea that supports username
 ```
 You pass in the search function to the mentioning component via the *searchForUser* prop. This will fire when the regular expression detects a potential username match.
 
-## Installation
-This is a simple React app, so you can simply just clone and install all its dependencies with:
+## Installation and Demo
+The component is wrapped around a simple React app , so you can simply just clone, and then install all its dependencies with:
 ```
 npm install
 ```
@@ -50,4 +50,8 @@ Therefore, when you decide to implement it with another search algorithm that re
 
 | Parameter | Type     | Description                |
 | :-------- | :------- | :------------------------- |
-| `searchForUser` | `Function` | **Required**. Search method that returns potential matches.|
+| `preventSelfTagging` | `Boolean` | Prevents the client from tagging their own username. If this is specified to be true, then currentUser must be a provided String of the client's username.|
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| `currentUser` | `String` | Username of the current user that is required to prevent self-tagging.|

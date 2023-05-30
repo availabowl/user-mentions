@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Navbar, Nav, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Navbar, Nav, Alert, Form } from 'react-bootstrap';
 import Fuse from 'fuse.js'
 
 import UserMentionsInput from './UserMentionsInput';
@@ -49,6 +49,7 @@ function searchForUser(value) {
 const App = () => {
 
 	const [usernameMentions, setUsernameMentions] = useState([]);
+    const [preventSelfTagging, setPreventSelfTagging] = useState(false);
 
 	return (
 		<>
@@ -58,6 +59,7 @@ const App = () => {
                         <Col className="d-flex justify-content-between">
                             <Navbar.Brand>Nam Tran</Navbar.Brand>
                             <Nav>
+                                <Nav.Link href="https://github.com/availabowl/user-mentions">Code repo</Nav.Link>
                                 <Nav.Link href="https://portfolio-sepia-sigma-68.vercel.app/">Portfolio</Nav.Link>
                             </Nav>
                         </Col>
@@ -67,12 +69,17 @@ const App = () => {
             <Container style={{marginTop:'48px'}}>
                 <Row>
                     <Col>
-                        <h4 style={{marginBottom:'24px'}}>Availabowl Mentioning Component, v1.4 -- sandbox</h4>
+                        <h4 style={{marginBottom:'24px'}}>Availabowl Mentioning Component, v1.5 -- sandbox</h4>
                         <UserMentionsInput 
                         searchForUser={searchForUser}
                         usernameMentions={usernameMentions}
                         setUsernameMentions={setUsernameMentions}
+                        preventSelfTagging={preventSelfTagging}
+                        currentUser={"evan"}
                         />
+                        <Form style={{marginTop:'24px'}}>
+                            <Form.Check type="checkbox" label="Prevent self-tagging (current user is evan)" onClick={() => setPreventSelfTagging(!preventSelfTagging)} />
+                        </Form>
                     </Col>
                 </Row>
                 <Row>
@@ -84,6 +91,15 @@ const App = () => {
                         {
                             userBank.map((user, i) => <p style={{fontFamily:"monospace"}} key={i}>{JSON.stringify(user)}</p>)
                         }
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <p><b>Disclaimer</b></p>
+                        <Alert variant="warning">
+                            Self-tagging can still occur if the username where typing @evan was a match while preventing it was changed during such. Since the case of making self-tagging
+                            being toggleable on the client side is a rare situation, this is not seen as an issue.
+                        </Alert>
                     </Col>
                 </Row>
             </Container>

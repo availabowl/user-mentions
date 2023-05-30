@@ -17,7 +17,7 @@ const UserListGroup = ({user}) => {
     )
 }
 
-const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions}) => {
+const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions, preventSelfTagging, currentUser}) => {
 
     const pattern = /@(?=.{3,20}(?:\s|$))[a-z][a-z0-9]+(?:[_][a-z0-9]+)?/ig;
     const textareaRef = useRef(null);
@@ -40,6 +40,9 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
                 let prelimSearchResults = searchForUser(focusedUserValue);
 
                 if (prelimSearchResults.length > 0 && !usernameMentions.includes(prelimSearchResults[0].item.name)) {
+                    if (preventSelfTagging && currentUser !== undefined) {
+                        prelimSearchResults = prelimSearchResults.filter(result => result.item.name !== currentUser);
+                    }
                     // Prevent any duplicates from being inputted.
                     usernameMentions.forEach(username => {
                         prelimSearchResults = prelimSearchResults.filter(result => result.item.name !== username);
