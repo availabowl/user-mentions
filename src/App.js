@@ -69,7 +69,7 @@ const App = () => {
             <Container style={{marginTop:'48px'}}>
                 <Row>
                     <Col>
-                        <h4 style={{marginBottom:'24px'}}>Availabowl Mentioning Component, v1.5 -- sandbox</h4>
+                        <h4 style={{marginBottom:'24px'}}>Availabowl Mentioning Component, v1.7 -- sandbox</h4>
                         <UserMentionsInput 
                         searchForUser={searchForUser}
                         usernameMentions={usernameMentions}

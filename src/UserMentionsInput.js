@@ -19,7 +19,7 @@ const UserListGroup = ({user}) => {
 
 const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions, preventSelfTagging, currentUser}) => {
 
-    const pattern = /@(?=.{3,20}(?:\s|$))[a-z][a-z0-9]+(?:[_][a-z0-9]+)?/ig;
+    const pattern = /@(?=.{2,20}(?:\s|$))[a-z][a-z0-9]+(?:[_][a-z0-9]+)?/ig;
     const textareaRef = useRef(null);
 
     const [focusedValue, setFocusedValue] = useState(null);
@@ -27,8 +27,9 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
     const [results, setResults] = useState([]);
 
     const [textareaContent, setTextareaContent] = useState('');
+    const [cursorPosition, setCursorPosition] = useState(0);
 
-    const handleUsernameMention = useCallback((textContent) => {
+    const handleDeleteUsernameMentions = useCallback((textContent) => {
         usernameMentions.forEach((username, i) => { // Go through each saved username in the state array
             if (textContent.indexOf(`@${username}`) === -1) { // If @username is no longer in the textarea's content, remove it and update state array
                 let temp = [...usernameMentions.slice(0,i), ...usernameMentions.slice(i+1)];
@@ -37,21 +38,27 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
         })
     }, [usernameMentions, setUsernameMentions]);
 
-    const handleOnChange = async (e) => {
-        setTextareaContent(e.target.value);
-        let usernameDetections = e.target.value.match(pattern) || [];
+    const handleUsernameMentions = useCallback((textContent) => {
+        let usernameDetections = textContent.match(/@(?=.{2,20}(?:\s|$))[a-z][a-z0-9]+(?:[_][a-z0-9]+)?/ig) || [];
+
+        if (cursorPosition > 0) {
+            usernameDetections = textContent.substring(0, cursorPosition).match(/@(?=.{2,20}(?:\s|$))[a-z][a-z0-9]+(?:[_][a-z0-9]+)?/ig) || [];
+        }
 
         if (usernameDetections.length > 0) {
             let focusedUserValue = usernameDetections.slice(-1)[0].substring(1);
             setFocusedValue(focusedUserValue);
 
-            if (!usernameMentions.includes(focusedUserValue)) {                
+            let endIndexOfFocusedUserValue = textContent.indexOf(focusedUserValue) + focusedUserValue.length;
+
+            if (!usernameMentions.includes(focusedUserValue) && textContent.substring(endIndexOfFocusedUserValue, endIndexOfFocusedUserValue+1) !== ' ') {                
                 let prelimSearchResults = searchForUser(focusedUserValue);
 
                 if (prelimSearchResults.length > 0 && !usernameMentions.includes(prelimSearchResults[0].item.name)) {
                     if (preventSelfTagging && currentUser !== undefined) {
                         prelimSearchResults = prelimSearchResults.filter(result => result.item.name !== currentUser);
                     }
+
                     // Prevent any duplicates from being inputted.
                     usernameMentions.forEach(username => {
                         prelimSearchResults = prelimSearchResults.filter(result => result.item.name !== username);
@@ -62,6 +69,13 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
                 }
             }        
         }
+    }, [currentUser, preventSelfTagging, searchForUser, usernameMentions, cursorPosition]);
+
+    const handleOnChange = async (e) => {
+        setTextareaContent(e.target.value.substring(0, textareaRef.current.selectionStart));
+        setCursorPosition(textareaRef.current.selectionStart);
+
+        handleUsernameMentions(e.target.value);
         
         if (e.target.value.substring(e.target.value.length-1) === ' ' || e.target.value.length === 0) {
             setShowResults(false);
@@ -70,20 +84,31 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
         return new Promise((resolve, _) => {
             resolve(e.target.value);
         })
-    }
+    };
 
     const handleChainedOnchange = (e) => {
         handleOnChange(e).then(textContent => {
-            handleUsernameMention(textContent);
+            handleDeleteUsernameMentions(textContent);
         })
-    }
+    };
 
     const handleCompleteMention = (username) => {
-        let usernameDetections = textareaContent.match(pattern) || [];
+        let usernameDetections = textareaContent.substring(0, cursorPosition).match(pattern) || [];
         let mostRecentMention = usernameDetections[usernameDetections.length-1];
         let index = textareaContent.indexOf(mostRecentMention);
 
-        let appendedUserTotextareaContent = textareaContent.substring(0, index) + '@' + username + ' ';
+        let newlyAppendedUsername = textareaContent.substring(0, index) + '@' + username;
+        let newlyEndedTextareaPosition = index+mostRecentMention.length;
+
+        let appendedUserTotextareaContent = newlyAppendedUsername;
+        if (textareaContent.substring(newlyEndedTextareaPosition, newlyEndedTextareaPosition+1) !== ' ') {
+            appendedUserTotextareaContent += ' ';
+        }
+
+        if (newlyEndedTextareaPosition !== textareaContent.length) {
+            appendedUserTotextareaContent += textareaContent.substring(newlyEndedTextareaPosition);
+        }
+
         textareaRef.current.value = appendedUserTotextareaContent;
 
         setUsernameMentions([...usernameMentions, username]);
@@ -92,10 +117,20 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
         setFocusedValue(null);
     };
 
+    const handleOnClick = (e) => {
+        setCursorPosition(textareaRef.current.selectionStart);
+        handleUsernameMentions(e.target.value.substring(0, textareaRef.current.selectionStart))
+    };
+
     return (
         <div style={{position:"relative"}}>
             <Form>
-                <Form.Control as="textarea" rows={5} style={{resize:'none'}} onChange={handleChainedOnchange} ref={textareaRef} placeholder="Enter some text here."/>
+                <Form.Control as="textarea" rows={5} style={{resize:'none'}} ref={textareaRef}
+                onChange={handleChainedOnchange}
+                onBlur={e => setTextareaContent(e.target.value)}
+                onClick={handleOnClick}
+                placeholder="Enter some text here."
+                />
                 {
                     showResults && focusedValue !== null && results.length > 0 &&
                     <ListGroup style={{position:"absolute",zIndex:999,width:"300px",height:"200px",overflowY:"auto",bottom:-225,right:0}}>
