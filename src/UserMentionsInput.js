@@ -72,22 +72,29 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
     }, [currentUser, preventSelfTagging, searchForUser, usernameMentions, cursorPosition]);
 
     const handleOnChange = async (e) => {
-        setTextareaContent(e.target.value.substring(0, textareaRef.current.selectionStart));
+        let textareaContent = e.target.value.substring(0, textareaRef.current.selectionStart);
+        setTextareaContent(e.target.value);
         setCursorPosition(textareaRef.current.selectionStart);
 
-        handleUsernameMentions(e.target.value);
+        handleUsernameMentions(textareaContent);
         
-        if (e.target.value.substring(e.target.value.length-1) === ' ' || e.target.value.length === 0) {
+        if (textareaContent.substring(textareaContent.length-1) === ' ' || textareaContent.length === 0) {
             setShowResults(false);
         }
 
         return new Promise((resolve, _) => {
             resolve(e.target.value);
-        })
+        });
     };
 
     const handleChainedOnchange = (e) => {
         handleOnChange(e).then(textContent => {
+            handleDeleteUsernameMentions(textContent);
+        })
+    };
+
+    const handleChainedCompleteMention = (username) => {
+        handleCompleteMention(username).then(textContent => {
             handleDeleteUsernameMentions(textContent);
         })
     };
@@ -115,6 +122,10 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
         textareaRef.current.focus();
         setShowResults(false);
         setFocusedValue(null);
+
+        return new Promise((resolve, _) => {
+            resolve(textareaContent);
+        });
     };
 
     const handleOnClick = (e) => {
@@ -136,7 +147,7 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
                     <ListGroup style={{position:"absolute",zIndex:999,width:"300px",height:"200px",overflowY:"auto",bottom:-225,right:0}}>
                         {
                             results.map((result) =>
-                                <ListGroup.Item key={result.item.name} action onClick={() => handleCompleteMention(result.item.name)}>
+                                <ListGroup.Item key={result.item.name} action onClick={() => handleChainedCompleteMention(result.item.name)}>
                                     <UserListGroup user={result.item}/>
                                 </ListGroup.Item>
                             )
