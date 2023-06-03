@@ -39,11 +39,7 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
     }, [usernameMentions, setUsernameMentions]);
 
     const handleUsernameMentions = useCallback((textContent) => {
-        let usernameDetections = textContent.match(/@(?=.{2,20}(?:\s|$))[a-z][a-z0-9]+(?:[_][a-z0-9]+)?/ig) || [];
-
-        if (cursorPosition > 0) {
-            usernameDetections = textContent.substring(0, cursorPosition).match(/@(?=.{2,20}(?:\s|$))[a-z][a-z0-9]+(?:[_][a-z0-9]+)?/ig) || [];
-        }
+        let usernameDetections = textContent.substring(0, cursorPosition).match(/@(?=.{2,20}(?:\s|$))[a-z][a-z0-9]+(?:[_][a-z0-9]+)?/ig) || [];
 
         if (usernameDetections.length > 0) {
             let focusedUserValue = usernameDetections.slice(-1)[0].substring(1);
@@ -60,9 +56,7 @@ const UserMentionsInput = ({searchForUser, usernameMentions, setUsernameMentions
                     }
 
                     // Prevent any duplicates from being inputted.
-                    usernameMentions.forEach(username => {
-                        prelimSearchResults = prelimSearchResults.filter(result => result.item.name !== username);
-                    });
+                    prelimSearchResults = Array.from(new Set(prelimSearchResults))
 
                     setResults(prelimSearchResults);
                     setShowResults(true);    
